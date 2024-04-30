@@ -41,11 +41,6 @@
     // Stubbed out method.  Subclasses need to implement this method.
 }
 
-- (void)dealloc
-{
-    [self stopRenderLoop];
-}
-
 #else // IF !ANIMATION_RENDERING
 
 #endif // END !ANIMAITON_RENDERING

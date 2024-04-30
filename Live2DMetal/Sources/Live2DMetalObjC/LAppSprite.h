@@ -43,11 +43,6 @@ typedef struct
                     MaxWidth:(float)maxWidth MaxHeight:(float)maxHeight Texture:(id <MTLTexture>) texture;
 
 /**
- * @brief 解放処理
- */
-- (void)dealloc;
-
-/**
  * @brief 描画する
  */
 - (void)renderImmidiate:(id<MTLRenderCommandEncoder>)renderEncoder;

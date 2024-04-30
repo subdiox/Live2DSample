@@ -32,13 +32,6 @@ typedef struct
 - (id)init;
 
 /**
- * @brief 解放処理
- *
- */
-- (void)dealloc;
-
-
-/**
  * @brief プリマルチプライ処理
  *
  * @param[in] red  画像のRed値

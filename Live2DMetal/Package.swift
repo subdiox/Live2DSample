@@ -15,6 +15,11 @@ let package = Package(
     targets: [
         .target(
             name: "Live2DMetal",
+            dependencies: ["Live2DMetalObjC", "CubismNativeFramework"],
+            swiftSettings: [.interoperabilityMode(.Cxx)]
+        ),
+        .target(
+            name: "Live2DMetalObjC",
             dependencies: ["CubismNativeFramework"],
             publicHeadersPath: "."
         ),

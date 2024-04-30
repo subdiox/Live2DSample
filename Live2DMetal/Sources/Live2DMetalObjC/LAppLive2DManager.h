@@ -44,11 +44,6 @@ typedef NS_ENUM(NSUInteger, SelectTarget)
 + (LAppLive2DManager*)getInstance;
 
 /**
- * @brief クラスのインスタンスを解放する。
- */
-+ (void)releaseInstance;
-
-/**
  * @brief 現在のシーンで保持しているモデルを返す。
  *
  * @param[in] no モデルリストのインデックス値

@@ -3,14 +3,14 @@ import SwiftUI
 import Live2DMetal
 
 struct Live2DView: UIViewControllerRepresentable {
-    typealias UIViewControllerType = ViewController
+    typealias UIViewControllerType = Live2DViewController
 
-    func makeUIViewController(context: Context) -> ViewController {
-        ViewController()
+    func makeUIViewController(context: Context) -> Live2DViewController {
+        Live2DViewController()
     }
 
     func updateUIViewController(
-        _ uiViewController: ViewController,
+        _ uiViewController: Live2DViewController,
         context: Context
     ) {}
 }

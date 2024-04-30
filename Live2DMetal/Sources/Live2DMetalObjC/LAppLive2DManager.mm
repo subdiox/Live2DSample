@@ -20,7 +20,7 @@
 @interface LAppLive2DManager()
 
 - (id)init;
-- (void)dealloc;
+
 @end
 
 @implementation LAppLive2DManager

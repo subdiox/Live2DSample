@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import Live2DMetal
+import Live2DMetalObjC
 
 @main
 struct Live2DSampleApp: App {

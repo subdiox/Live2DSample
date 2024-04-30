@@ -97,21 +97,7 @@
 
 - (void)finishApplication
 {
-    [self.viewController releaseView];
-
-    _textureManager = nil;
-
-    [LAppLive2DManager releaseInstance];
-
     Csm::CubismFramework::Dispose();
-
-    self.window = nil;
-
-    self.viewController = nil;
-
-    _isEnd = true;
-
-    exit(0);
 }
 
 @end

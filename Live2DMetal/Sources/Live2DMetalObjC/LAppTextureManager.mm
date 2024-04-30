@@ -37,11 +37,6 @@
     return self;
 }
 
-- (void)dealloc
-{
-    [self releaseTextures];
-}
-
 - (TextureInfo*) createTextureFromPngFile:(std::string)fileName
 {
 
@@ -165,16 +160,6 @@
                                  ((blue * (alpha + 1) >> 8) << 16) | \
                                  (((alpha)) << 24)   \
                                  );
-}
-- (void)releaseTextures
-{
-    for (Csm::csmUint32 i = 0; i < _textures.GetSize(); i++)
-    {
-        delete _textures[i];
-        _textures.Remove(i);
-    }
-
-    _textures.Clear();
 }
 
 - (void)releaseTextureWithId:(id <MTLTexture>) textureId

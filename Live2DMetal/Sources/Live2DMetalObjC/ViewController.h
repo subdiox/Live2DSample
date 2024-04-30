@@ -24,16 +24,6 @@
 @property (nonatomic) id<MTLTexture> depthTexture;
 
 /**
- * @brief 解放処理
- */
-- (void)dealloc;
-
-/**
- * @brief 解放する。
- */
-- (void)releaseView;
-
-/**
  * @brief 画面リサイズ処理
  */
 - (void)resizeScreen;

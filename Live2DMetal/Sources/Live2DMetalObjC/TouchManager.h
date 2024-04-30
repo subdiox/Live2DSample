@@ -30,11 +30,6 @@
  */
 - (id)init;
 
-/**
- * @brief 解放処理
- */
-- (void)dealloc;
-
 /*
  * @brief タッチ開始時イベント
  *
