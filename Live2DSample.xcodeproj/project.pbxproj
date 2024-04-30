@@ -7,20 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4C2466BA2BB08C2100A10EB6 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C2466B92BB08C2100A10EB6 /* ViewController.swift */; };
-		4C551F602BB062AF00E2E7FD /* hiyori_pro in Resources */ = {isa = PBXBuildFile; fileRef = 4C551F5F2BB062AF00E2E7FD /* hiyori_pro */; };
-		4C6E96442BB0610900CB6C9B /* Live2DMetal in Frameworks */ = {isa = PBXBuildFile; productRef = 4C6E96432BB0610900CB6C9B /* Live2DMetal */; };
+		4C0946F12BE1807B000DC7C3 /* Live2DMetal in Frameworks */ = {isa = PBXBuildFile; productRef = 4C0946F02BE1807B000DC7C3 /* Live2DMetal */; };
+		4C1682932BE1706F0014FC58 /* res in Resources */ = {isa = PBXBuildFile; fileRef = 4C1682922BE1706F0014FC58 /* res */; };
+		4C50FCD12BE16467008213DE /* Live2DMetal in Frameworks */ = {isa = PBXBuildFile; productRef = 4C50FCD02BE16467008213DE /* Live2DMetal */; };
 		4CACEBAE2BB04FBC009F3D6C /* Live2DSampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CACEBAD2BB04FBC009F3D6C /* Live2DSampleApp.swift */; };
 		4CACEBB02BB04FBC009F3D6C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CACEBAF2BB04FBC009F3D6C /* ContentView.swift */; };
-		4CACEBB22BB04FBD009F3D6C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4CACEBB12BB04FBD009F3D6C /* Assets.xcassets */; };
-		4CACEBB52BB04FBD009F3D6C /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4CACEBB42BB04FBD009F3D6C /* Preview Assets.xcassets */; };
-		4CACEBBD2BB051B7009F3D6C /* Live2DCubism in Frameworks */ = {isa = PBXBuildFile; productRef = 4CACEBBC2BB051B7009F3D6C /* Live2DCubism */; };
-		4CACEBC52BB0550C009F3D6C /* CubismView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CACEBC42BB0550C009F3D6C /* CubismView.swift */; };
+		4CFF845C2BE1794E006A6008 /* MetalShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4CFF845B2BE1794E006A6008 /* MetalShaders.metal */; };
+		4CFF845E2BE179C5006A6008 /* Live2DView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CFF845D2BE179C5006A6008 /* Live2DView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		4C2466B92BB08C2100A10EB6 /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		4C551F5F2BB062AF00E2E7FD /* hiyori_pro */ = {isa = PBXFileReference; lastKnownFileType = folder; path = hiyori_pro; sourceTree = "<group>"; };
+		4C1682922BE1706F0014FC58 /* res */ = {isa = PBXFileReference; lastKnownFileType = folder; path = res; sourceTree = "<group>"; };
 		4C551F622BB0653300E2E7FD /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		4C551F642BB0653900E2E7FD /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		4CACEBAA2BB04FBC009F3D6C /* Live2DSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Live2DSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -28,7 +25,9 @@
 		4CACEBAF2BB04FBC009F3D6C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		4CACEBB12BB04FBD009F3D6C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4CACEBB42BB04FBD009F3D6C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		4CACEBC42BB0550C009F3D6C /* CubismView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubismView.swift; sourceTree = "<group>"; };
+		4CFF845B2BE1794E006A6008 /* MetalShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = MetalShaders.metal; sourceTree = "<group>"; };
+		4CFF845D2BE179C5006A6008 /* Live2DView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Live2DView.swift; sourceTree = "<group>"; };
+		4CFF845F2BE179EC006A6008 /* MetalShaderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MetalShaderTypes.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -36,8 +35,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4CACEBBD2BB051B7009F3D6C /* Live2DCubism in Frameworks */,
-				4C6E96442BB0610900CB6C9B /* Live2DMetal in Frameworks */,
+				4C0946F12BE1807B000DC7C3 /* Live2DMetal in Frameworks */,
+				4C50FCD12BE16467008213DE /* Live2DMetal in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,10 +74,11 @@
 			children = (
 				4CACEBAD2BB04FBC009F3D6C /* Live2DSampleApp.swift */,
 				4CACEBAF2BB04FBC009F3D6C /* ContentView.swift */,
-				4CACEBC42BB0550C009F3D6C /* CubismView.swift */,
-				4C2466B92BB08C2100A10EB6 /* ViewController.swift */,
+				4CFF845D2BE179C5006A6008 /* Live2DView.swift */,
 				4CACEBB12BB04FBD009F3D6C /* Assets.xcassets */,
-				4C551F5F2BB062AF00E2E7FD /* hiyori_pro */,
+				4CFF845F2BE179EC006A6008 /* MetalShaderTypes.h */,
+				4CFF845B2BE1794E006A6008 /* MetalShaders.metal */,
+				4C1682922BE1706F0014FC58 /* res */,
 				4CACEBB32BB04FBD009F3D6C /* Preview Content */,
 			);
 			path = Live2DSample;
@@ -109,8 +109,8 @@
 			);
 			name = Live2DSample;
 			packageProductDependencies = (
-				4CACEBBC2BB051B7009F3D6C /* Live2DCubism */,
-				4C6E96432BB0610900CB6C9B /* Live2DMetal */,
+				4C50FCD02BE16467008213DE /* Live2DMetal */,
+				4C0946F02BE1807B000DC7C3 /* Live2DMetal */,
 			);
 			productName = Live2DSample;
 			productReference = 4CACEBAA2BB04FBC009F3D6C /* Live2DSample.app */;
@@ -141,7 +141,7 @@
 			);
 			mainGroup = 4CACEBA12BB04FBC009F3D6C;
 			packageReferences = (
-				4C6E96452BB0618D00CB6C9B /* XCLocalSwiftPackageReference "../Live2DCubism" */,
+				4C0946EF2BE1807B000DC7C3 /* XCLocalSwiftPackageReference "Live2DMetal" */,
 			);
 			productRefGroup = 4CACEBAB2BB04FBC009F3D6C /* Products */;
 			projectDirPath = "";
@@ -157,9 +157,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4C551F602BB062AF00E2E7FD /* hiyori_pro in Resources */,
-				4CACEBB52BB04FBD009F3D6C /* Preview Assets.xcassets in Resources */,
-				4CACEBB22BB04FBD009F3D6C /* Assets.xcassets in Resources */,
+				4C1682932BE1706F0014FC58 /* res in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -170,10 +168,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4C2466BA2BB08C2100A10EB6 /* ViewController.swift in Sources */,
+				4CFF845E2BE179C5006A6008 /* Live2DView.swift in Sources */,
 				4CACEBB02BB04FBC009F3D6C /* ContentView.swift in Sources */,
 				4CACEBAE2BB04FBC009F3D6C /* Live2DSampleApp.swift in Sources */,
-				4CACEBC52BB0550C009F3D6C /* CubismView.swift in Sources */,
+				4CFF845C2BE1794E006A6008 /* MetalShaders.metal in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -323,6 +321,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = ai.sabab.Live2DSample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_INTEROP_MODE = objcxx;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -352,6 +351,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = ai.sabab.Live2DSample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_INTEROP_MODE = objcxx;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -381,20 +381,20 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		4C6E96452BB0618D00CB6C9B /* XCLocalSwiftPackageReference "../Live2DCubism" */ = {
+		4C0946EF2BE1807B000DC7C3 /* XCLocalSwiftPackageReference "Live2DMetal" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = ../Live2DCubism;
+			relativePath = Live2DMetal;
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		4C6E96432BB0610900CB6C9B /* Live2DMetal */ = {
+		4C0946F02BE1807B000DC7C3 /* Live2DMetal */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Live2DMetal;
 		};
-		4CACEBBC2BB051B7009F3D6C /* Live2DCubism */ = {
+		4C50FCD02BE16467008213DE /* Live2DMetal */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = Live2DCubism;
+			productName = Live2DMetal;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

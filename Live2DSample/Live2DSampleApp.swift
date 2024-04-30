@@ -6,20 +6,11 @@
 //
 
 import SwiftUI
-import Live2DMetalObjC
+import Live2DMetal
 
 @main
 struct Live2DSampleApp: App {
-    init() {
-        L2DCubism.initialize()
-        NotificationCenter.default.addObserver(
-            forName: UIApplication.willTerminateNotification,
-            object: nil,
-            queue: .main
-        ) { _ in
-            L2DCubism.dispose()
-        }
-    }
+    @UIApplicationDelegateAdaptor (AppDelegate.self) var appDelegate
 
     var body: some Scene {
         WindowGroup {
