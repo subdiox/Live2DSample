@@ -190,7 +190,7 @@ Csm::csmString GetPath(CFURLRef url)
 
             if (_renderTarget == SelectTarget_ViewFrameBuffer)
             {
-                _sprite = [[LAppSprite alloc] initWithMyVar:width * 0.5f Y:height * 0.5f Width:width Height:height
+                _sprite = [[LAppSprite alloc] initWithX:width * 0.5f Y:height * 0.5f Width:width Height:height
                                                    MaxWidth:width MaxHeight:height Texture:_renderBuffer->GetColorBuffer()];
             }
         }
@@ -283,7 +283,7 @@ Csm::csmString GetPath(CFURLRef url)
             id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
 
             Csm::Rendering::CubismOffscreenSurface_Metal& useTarget = model->GetRenderBuffer();
-            LAppSprite* depthSprite = [[LAppSprite alloc] initWithMyVar:width * 0.5f Y:height * 0.5f Width:width Height:height
+            LAppSprite* depthSprite = [[LAppSprite alloc] initWithX:width * 0.5f Y:height * 0.5f Width:width Height:height
                                                                MaxWidth:width MaxHeight:height Texture:useTarget.GetColorBuffer()];
             float a = i < 1 ? 1.0f : model->GetOpacity(); // 片方のみ不透明度を取得できるようにする
             [depthSprite SetColor:1.0f g:1.0f b:1.0f a:a];

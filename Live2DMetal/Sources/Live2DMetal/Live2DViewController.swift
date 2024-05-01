@@ -4,70 +4,39 @@ import QuartzCore
 import Live2DMetalObjC
 import CubismNativeFramework
 
-public final class Live2DViewController: UIViewController, MetalViewDelegate {
-
-    var anotherTarget: Bool = false
-    var spriteColorR: Float = 0.0
-    var spriteColorG: Float = 0.0
-    var spriteColorB: Float = 0.0
-    var spriteColorA: Float = 0.0
-    var clearColorR: Float = 0.0
-    var clearColorG: Float = 0.0
-    var clearColorB: Float = 0.0
-    var clearColorA: Float = 0.0
+public final class Live2DViewController: UIViewController {
     public var commandQueue: MTLCommandQueue?
-    var depthTexture: MTLTexture?
 
-    var back: LAppSprite? //背景画像
-    var gear: LAppSprite? //歯車画像
-    var power: LAppSprite? //電源画像
-    var renderSprite: LAppSprite? //レンダリングターゲット描画用
-    var touchManager: TouchManager? // タッチマネージャー
-    var deviceToScreen: Csm.CubismMatrix44? // デバイスからスクリーンへの行列
-    var viewMatrix: Csm.CubismViewMatrix?
-
-    public override func loadView() {
-        let textureManager = LAppTextureManager.getInstance()
-        textureManager?.delegate = self
-    }
+    private let touchManager = TouchManager()
+    private var depthTexture: MTLTexture?
+    private var back: LAppSprite? // Sprite for Background image
+    private var gear: LAppSprite? // Sprite for Setting icon
+    private var deviceToScreen = Csm.CubismMatrix44() // A matrix from device to screen
+    private var viewMatrix = Csm.CubismViewMatrix()
 
     public override func viewDidLoad() {
         super.viewDidLoad()
 
-        //Fremework層でもMTLDeviceを参照するためシングルトンオブジェクトに登録
-        let single = CubismRenderingInstanceSingleton_Metal.sharedManager() as! CubismRenderingInstanceSingleton_Metal
+        let textureManager = LAppTextureManager.getInstance()
+        textureManager?.delegate = self
+
+        // Registering MTLDevice in the singleton object since the framework layer also refers to MTLDevice
         let device = MTLCreateSystemDefaultDevice()
-        single.setMTLDevice(device)
+        cubismRenderingInstance?.setMTLDevice(device)
 
         let view = MetalUIView()
         self.view = view
 
-        // Set the device for the layer so the layer can create drawable textures that can be rendered to
-        // on this device.
+        // Set the device for the layer so the layer can create drawable textures that can be rendered to on this device.
         view.metalLayer.device = device
 
         // Set this class as the delegate to receive resize and render callbacks.
         view.delegate = self
 
         view.metalLayer.pixelFormat = .bgra8Unorm
-        single.setMetalLayer(view.metalLayer)
+        cubismRenderingInstance?.setMetalLayer(view.metalLayer)
 
         commandQueue = device?.makeCommandQueue()
-
-        anotherTarget = false
-        clearColorR = 1.0
-        clearColorG = 1.0
-        clearColorB = 1.0
-        clearColorA = 0.0
-
-        // タッチ関係のイベント管理
-        touchManager = TouchManager()
-
-        // デバイス座標からスクリーン座標に変換するための
-        deviceToScreen = Csm.CubismMatrix44()
-
-        // 画面の表示の拡大縮小や移動の変換を行う行列
-        viewMatrix = Csm.CubismViewMatrix()
 
         initializeScreen()
     }
@@ -77,86 +46,134 @@ public final class Live2DViewController: UIViewController, MetalViewDelegate {
         initializeSprite()
     }
 
-    func initializeScreen() {
+    public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = touches.first else { return }
+        let point = touch.location(in: view)
+
+        touchManager?.touchesBegan(Float(point.x), deciveY: Float(point.y))
+    }
+
+    public override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = touches.first else { return }
+        let point = touch.location(in: view)
+
+        let viewX = transformViewX(touchManager?.lastX ?? 0.0)
+        let viewY = transformViewY(touchManager?.lastY ?? 0.0)
+
+        touchManager?.touchesMoved(Float(point.x), deviceY: Float(point.y))
+        LAppLive2DManager.getInstance()?.onDrag(viewX, floatY: viewY)
+    }
+
+    public override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = touches.first else { return }
+
+        let point = touch.location(in: view)
+        let pointY = transformTapY(Float(point.y))
+
+        // Touch ended
+        let live2DManager = LAppLive2DManager.getInstance()
+        live2DManager?.onDrag(0.0, floatY: 0.0)
+        if let getX = touchManager?.lastX, let getY = touchManager?.lastY {
+            let x = deviceToScreen.TransformX(getX)
+            let y = deviceToScreen.TransformY(getY)
+            live2DManager?.onTap(x ?? 0.0, floatY: y ?? 0.0)
+            // Did tap on gear?
+            if gear?.isHit(Float(point.x), pointY: pointY) ?? false {
+                live2DManager?.nextScene()
+            }
+        }
+    }
+}
+
+// Private methods, computed variables
+extension Live2DViewController {
+    private func initializeScreen() {
         let screenRect = UIScreen.main.bounds
-        let width = screenRect.size.width
-        let height = screenRect.size.height
+        let width = Float(screenRect.size.width)
+        let height = Float(screenRect.size.height)
 
-        // 縦サイズを基準とする
-        let ratio = Float(width) / Float(height)
+        // Using vertical size as the standard
+        let ratio = width / height
         let left = -ratio
         let right = ratio
         let bottom = Constant.viewLogicalLeft
         let top = Constant.viewLogicalRight
 
-        // デバイスに対応する画面の範囲。 Xの左端, Xの右端, Yの下端, Yの上端
-        viewMatrix?.SetScreenRect(left, right, bottom, top)
-        viewMatrix?.Scale(Constant.viewScale, Constant.viewScale)
+        // Screen range corresponding to the device. Left and right edges of X, lower and upper edges of Y
+        viewMatrix.SetScreenRect(left, right, bottom, top)
+        viewMatrix.Scale(Constant.viewScale, Constant.viewScale)
 
-        deviceToScreen?.LoadIdentity() // サイズが変わった際などリセット必須
+        deviceToScreen.LoadIdentity() // Must reset when size changes
         if width > height {
             let screenW = fabsf(right - left)
-            deviceToScreen?.ScaleRelative(screenW / Float(width), -screenW / Float(width))
+            deviceToScreen.ScaleRelative(screenW / Float(width), -screenW / Float(width))
         } else {
             let screenH = fabsf(top - bottom)
-            deviceToScreen?.ScaleRelative(screenH / Float(height), -screenH / Float(height))
+            deviceToScreen.ScaleRelative(screenH / Float(height), -screenH / Float(height))
         }
-        deviceToScreen?.TranslateRelative(-Float(width) * 0.5, -Float(height) * 0.5)
+        deviceToScreen.TranslateRelative(-Float(width) * 0.5, -Float(height) * 0.5)
 
-        // 表示範囲の設定
-        viewMatrix?.SetMaxScale(Constant.viewMaxScale) // 限界拡大率
-        viewMatrix?.SetMinScale(Constant.viewMinScale) // 限界縮小率
+        // Setting the display range
+        viewMatrix.SetMaxScale(Constant.viewMaxScale) // Maximum zoom limit
+        viewMatrix.SetMinScale(Constant.viewMinScale) // Minimum zoom limit
 
-        // 表示できる最大範囲
-        viewMatrix?.SetMaxScreenRect(Constant.viewLogicalMaxLeft, Constant.viewLogicalMaxRight, Constant.viewLogicalMaxBottom, Constant.viewLogicalMaxTop)
+        // Maximum displayable range
+        viewMatrix.SetMaxScreenRect(
+            Constant.viewLogicalMaxLeft,
+            Constant.viewLogicalMaxRight,
+            Constant.viewLogicalMaxBottom,
+            Constant.viewLogicalMaxTop
+        )
     }
 
-    func resizeScreen() {
-        guard let width = view?.frame.size.width, let height = view?.frame.size.height else { return }
-
-        // 縦サイズを基準とする
-        let ratio = Float(width) / Float(height)
-        let left = -ratio
-        let right = ratio
-        let bottom = Constant.viewLogicalLeft
-        let top = Constant.viewLogicalRight
-
-        // デバイスに対応する画面の範囲。 Xの左端, Xの右端, Yの下端, Yの上端
-        viewMatrix?.SetScreenRect(left, right, bottom, top)
-        viewMatrix?.Scale(Constant.viewScale, Constant.viewScale)
-
-        deviceToScreen?.LoadIdentity() // サイズが変わった際などリセット必須
-        if width > height {
-            let screenW = fabsf(right - left)
-            deviceToScreen?.ScaleRelative(screenW / Float(width), -screenW / Float(width))
-        } else {
-            let screenH = fabsf(top - bottom)
-            deviceToScreen?.ScaleRelative(screenH / Float(height), -screenH / Float(height))
-        }
-        deviceToScreen?.TranslateRelative(-Float(width) * 0.5, -Float(height) * 0.5)
-
-        // 表示範囲の設定
-        viewMatrix?.SetMaxScale(Constant.viewMaxScale) // 限界拡大率
-        viewMatrix?.SetMinScale(Constant.viewMinScale) // 限界縮小率
-
-        // 表示できる最大範囲
-        viewMatrix?.SetMaxScreenRect(Constant.viewLogicalMaxLeft, Constant.viewLogicalMaxRight, Constant.viewLogicalMaxBottom, Constant.viewLogicalMaxTop)
-    }
-
-    func initializeSprite() {
+    private func resizeScreen() {
         guard let view else { return }
-        let width = Float(view.frame.size.width)
-        let height = Float(view.frame.size.height)
+        let width = Float(view.frame.width)
+        let height = Float(view.frame.height)
+
+        // Using vertical size as the standard
+        let ratio = width / height
+        let left = -ratio
+        let right = ratio
+        let bottom = Constant.viewLogicalLeft
+        let top = Constant.viewLogicalRight
+
+        // Screen range corresponding to the device. Left and right edges of X, lower and upper edges of Y
+        viewMatrix.SetScreenRect(left, right, bottom, top)
+        viewMatrix.Scale(Constant.viewScale, Constant.viewScale)
+
+        deviceToScreen.LoadIdentity() // Must reset when size changes
+        if width > height {
+            let screenW = fabsf(right - left)
+            deviceToScreen.ScaleRelative(screenW / width, -screenW / width)
+        } else {
+            let screenH = fabsf(top - bottom)
+            deviceToScreen.ScaleRelative(screenH / height, -screenH / height)
+        }
+        deviceToScreen.TranslateRelative(-width * 0.5, -height * 0.5)
+
+        // Setting the display range
+        viewMatrix.SetMaxScale(Constant.viewMaxScale) // Maximum zoom limit
+        viewMatrix.SetMinScale(Constant.viewMinScale) // Minimum zoom limit
+
+        // Maximum displayable range
+        viewMatrix.SetMaxScreenRect(Constant.viewLogicalMaxLeft, Constant.viewLogicalMaxRight, Constant.viewLogicalMaxBottom, Constant.viewLogicalMaxTop)
+    }
+
+    private func initializeSprite() {
+        guard let view else { return }
+        let width = Float(view.frame.width)
+        let height = Float(view.frame.height)
 
         let resourcesPath = Constant.resourcesPath
         let textureManager = LAppTextureManager.getInstance()
 
-        //背景
+        // Background
         if let backgroundTexture = textureManager?.createTexture(
             fromPngFile: std.string(resourcesPath + Constant.backImageName)
         ).pointee {
             back = LAppSprite(
-                myVar: width * 0.5,
+                x: width * 0.5,
                 y: height * 0.5,
                 width: Float(backgroundTexture.width) * 2,
                 height: height * 0.95,
@@ -166,12 +183,12 @@ public final class Live2DViewController: UIViewController, MetalViewDelegate {
             )
         }
 
-        //モデル変更ボタン
+        // Model change button
         if let gearTexture = textureManager?.createTexture(
             fromPngFile: std.string(resourcesPath + Constant.gearImageName)
         ).pointee {
             gear = LAppSprite(
-                myVar: width - Float(gearTexture.width) * 0.5,
+                x: width - Float(gearTexture.width) * 0.5,
                 y: height - Float(gearTexture.height) * 0.5,
                 width: Float(gearTexture.width),
                 height: Float(gearTexture.height),
@@ -180,29 +197,14 @@ public final class Live2DViewController: UIViewController, MetalViewDelegate {
                 texture: gearTexture.id
             )
         }
-
-        //電源ボタン
-        if let powerTexture = textureManager?.createTexture(
-            fromPngFile: std.string(resourcesPath + Constant.powerImageName)
-        ).pointee {
-            power = LAppSprite(
-                myVar: width - Float(powerTexture.width) * 0.5,
-                y: Float(powerTexture.height) * 0.5,
-                width: Float(powerTexture.width),
-                height: Float(powerTexture.height),
-                maxWidth: width,
-                maxHeight: height,
-                texture: powerTexture.id
-            )
-        }
     }
 
-    func resizeSprite(width: Float, height: Float) {
+    private func resizeSprite(width: Float, height: Float) {
         guard let view else { return }
-        let maxWidth = Float(view.frame.size.width)
-        let maxHeight = Float(view.frame.size.height)
+        let maxWidth = Float(view.frame.width)
+        let maxHeight = Float(view.frame.height)
 
-        //背景
+        // Background
         if let back {
             back.resizeImmidiate(
                 width * 0.5,
@@ -214,7 +216,7 @@ public final class Live2DViewController: UIViewController, MetalViewDelegate {
             )
         }
 
-        //モデル変更ボタン
+        // Model change button
         if let gear {
             gear.resizeImmidiate(
                 width - Float(gear.texture.width) * 0.5,
@@ -225,83 +227,30 @@ public final class Live2DViewController: UIViewController, MetalViewDelegate {
                 maxHeight: maxHeight
             )
         }
-
-        //電源ボタン
-        if let power {
-            power.resizeImmidiate(
-                width - Float(power.texture.width) * 0.5,
-                y: Float(power.texture.height) * 0.5,
-                width: Float(power.texture.width),
-                height: Float(power.texture.height),
-                maxWidth: maxWidth,
-                maxHeight: maxHeight
-            )
-        }
     }
 
-    public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first else { return }
-        let point = touch.location(in: self.view)
-
-        touchManager?.touchesBegan(Float(point.x), deciveY: Float(point.y))
+    private func transformViewX(_ deviceX: Float) -> Float {
+        viewMatrix.InvertTransformX(deviceToScreen.TransformX(deviceX))
     }
 
-    public override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first else { return }
-        let point = touch.location(in: self.view)
-
-        let viewX = transformViewX(touchManager?.lastX ?? 0.0)
-        let viewY = transformViewY(touchManager?.lastY ?? 0.0)
-
-        touchManager?.touchesMoved(Float(point.x), deviceY: Float(point.y))
-        LAppLive2DManager.getInstance()?.onDrag(viewX, floatY: viewY)
+    private func transformViewY(_ deviceY: Float) -> Float {
+        viewMatrix.InvertTransformY(deviceToScreen.TransformY(deviceY))
     }
 
-    public override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first else { return }
-        print(touch.view as Any)
-
-        let point = touch.location(in: self.view)
-        let pointY = transformTapY(Float(point.y))
-
-        // タッチ終了
-        let live2DManager = LAppLive2DManager.getInstance()
-        live2DManager?.onDrag(0.0, floatY: 0.0)
-        if let getX = touchManager?.lastX, let getY = touchManager?.lastY {
-            let x = deviceToScreen?.TransformX(getX)
-            let y = deviceToScreen?.TransformY(getY)
-            live2DManager?.onTap(x ?? 0.0, floatY: y ?? 0.0)
-            // 歯車にタップしたか
-            if gear?.isHit(Float(point.x), pointY: pointY) ?? false {
-                live2DManager?.nextScene()
-            }
-        }
-    }
-
-    func transformViewX(_ deviceX: Float) -> Float {
-        guard let screenX = deviceToScreen?.TransformX(deviceX) else { return 0.0 }
-        return viewMatrix?.InvertTransformX(screenX) ?? 0.0
-    }
-
-    func transformViewY(_ deviceY: Float) -> Float {
-        guard let screenY = deviceToScreen?.TransformY(deviceY) else { return 0.0 }
-        return viewMatrix?.InvertTransformY(screenY) ?? 0.0
-    }
-
-    func transformScreenX(_ deviceX: Float) -> Float {
-        return deviceToScreen?.TransformX(deviceX) ?? 0.0
-    }
-
-    func transformScreenY(_ deviceY: Float) -> Float {
-        return deviceToScreen?.TransformY(deviceY) ?? 0.0
-    }
-
-    func transformTapY(_ deviceY: Float) -> Float {
-        guard let height = view?.frame.size.height else { return 0.0 }
+    private func transformTapY(_ deviceY: Float) -> Float {
+        guard let height = view?.frame.size.height else { return 0 }
         return deviceY * -1 + Float(height)
     }
 
-    public func drawableResize(_ size: CGSize) {
+    private var cubismRenderingInstance: CubismRenderingInstanceSingleton_Metal? {
+        CubismRenderingInstanceSingleton_Metal.sharedManager() as? CubismRenderingInstanceSingleton_Metal
+    }
+}
+
+extension Live2DViewController: MetalViewDelegate {
+    public
+
+ func drawableResize(_ size: CGSize) {
         guard let device = cubismRenderingInstance?.getMTLDevice() else { return }
 
         let depthTextureDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .depth32Float, width: Int(size.width), height: Int(size.height), mipmapped: false)
@@ -313,17 +262,12 @@ public final class Live2DViewController: UIViewController, MetalViewDelegate {
         resizeScreen()
     }
 
-    func renderSprite(_ renderEncoder: MTLRenderCommandEncoder) {
-        back?.renderImmidiate(renderEncoder)
-        gear?.renderImmidiate(renderEncoder)
-        power?.renderImmidiate(renderEncoder)
-    }
-
     public func render(to layer: CAMetalLayer) {
         LAppPal.UpdateTime()
 
         guard let commandBuffer = commandQueue?.makeCommandBuffer(),
-              let currentDrawable = layer.nextDrawable() else { return }
+              let currentDrawable = layer.nextDrawable()
+        else { return }
 
         let renderPassDescriptor = MTLRenderPassDescriptor()
         renderPassDescriptor.colorAttachments[0].texture = currentDrawable.texture
@@ -331,24 +275,27 @@ public final class Live2DViewController: UIViewController, MetalViewDelegate {
         renderPassDescriptor.colorAttachments[0].storeAction = .store
         renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 1)
 
-        guard let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor) else { return }
+        guard let renderEncoder = commandBuffer.makeRenderCommandEncoder(
+            descriptor: renderPassDescriptor
+        ) else { return }
 
-        //モデル以外の描画
-        renderSprite(renderEncoder)
+        // Rendering other than the model
+        back?.renderImmidiate(renderEncoder)
+        gear?.renderImmidiate(renderEncoder)
 
         renderEncoder.endEncoding()
 
-        if let live2DManager = LAppLive2DManager.getInstance() {
-            live2DManager.setViewMatrix(UnsafeMutablePointer(&viewMatrix!))
-            live2DManager.onUpdate(commandBuffer, currentDrawable: currentDrawable, depthTexture: depthTexture, frame: view?.frame ?? .zero)
-        }
+        let live2DManager = LAppLive2DManager.getInstance()
+        live2DManager?.setViewMatrix(UnsafeMutablePointer(&viewMatrix))
+        live2DManager?.onUpdate(
+            commandBuffer,
+            currentDrawable: currentDrawable,
+            depthTexture: depthTexture,
+            frame: view?.frame ?? .zero
+        )
 
         commandBuffer.present(currentDrawable)
         commandBuffer.commit()
-    }
-
-    private var cubismRenderingInstance: CubismRenderingInstanceSingleton_Metal? {
-        CubismRenderingInstanceSingleton_Metal.sharedManager() as? CubismRenderingInstanceSingleton_Metal
     }
 }
 
@@ -375,10 +322,8 @@ private enum Constant {
 
     static let resourcesPath = "res/"
 
-    // モデルの後ろにある背景の画像ファイル
+    // Image file for the background behind the model
     static let backImageName = "back_class_normal.png"
-    // 歯車
+    // Gear icon
     static let gearImageName = "icon_gear.png"
-    // 終了ボタン
-    static let powerImageName = "close.png"
 }

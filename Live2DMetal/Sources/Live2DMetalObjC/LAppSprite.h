@@ -40,7 +40,7 @@ typedef struct
  * @param[in]       maxHeight    最大高さ
  * @param[in]       texture      テクスチャ
  */
-- (id)initWithMyVar:(float)x Y:(float)y Width:(float)width Height:(float)height
+- (id)initWithX:(float)x Y:(float)y Width:(float)width Height:(float)height
                     MaxWidth:(float)maxWidth MaxHeight:(float)maxHeight Texture:(id <MTLTexture>) texture;
 
 /**

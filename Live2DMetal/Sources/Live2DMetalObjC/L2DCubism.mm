@@ -1,14 +1,20 @@
 #import "L2DCubism.h"
 #import "LAppAllocator.h"
+#import "LAppPal.h"
+#import "LAppDefine.h"
 
 using namespace Csm;
 
 static LAppAllocator allocator;
+static Csm::CubismFramework::Option cubismOption;
 
 @implementation L2DCubism
 
 + (void)initialize {
-    CubismFramework::StartUp(&allocator, NULL);
+    cubismOption.LogFunction = LAppPal::PrintMessageLn;
+    cubismOption.LoggingLevel = LAppDefine::CubismLoggingLevel;
+
+    CubismFramework::StartUp(&allocator, &cubismOption);
     CubismFramework::Initialize();
 }
 

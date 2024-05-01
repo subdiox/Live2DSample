@@ -31,7 +31,7 @@ typedef struct
 
 } BaseColor;
 
-- (id)initWithMyVar:(float)x Y:(float)y Width:(float)width Height:(float)height
+- (id)initWithX:(float)x Y:(float)y Width:(float)width Height:(float)height
                     MaxWidth:(float)maxWidth MaxHeight:(float)maxHeight Texture:(id <MTLTexture>) texture
 {
     self = [super self];
