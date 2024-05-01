@@ -9,7 +9,7 @@
 #define LAppLive2DManager_h
 
 #import <CubismFramework.hpp>
-#import <Math/CubismMatrix44.hpp>
+#import <Math/CubismViewMatrix.hpp>
 #import <Type/csmVector.hpp>
 #import <Type/csmString.hpp>
 #import "LAppModel.h"
@@ -81,7 +81,7 @@ typedef NS_ENUM(NSUInteger, SelectTarget)
  * @brief   画面を更新するときの処理
  *          モデルの更新処理および描画処理を行う
  */
-- (void)onUpdate:(id <MTLCommandBuffer>)commandBuffer currentDrawable:(id<CAMetalDrawable>)drawable depthTexture:(id<MTLTexture>)depthTarget;
+- (void)onUpdate:(id <MTLCommandBuffer>)commandBuffer currentDrawable:(id<CAMetalDrawable>)drawable depthTexture:(id<MTLTexture>)depthTarget frame:(CGRect)frame;
 
 /**
  * @brief   次のシーンに切り替える
@@ -104,7 +104,7 @@ typedef NS_ENUM(NSUInteger, SelectTarget)
 /**
  * @brief   viewMatrixをセットする
  */
-- (void)SetViewMatrix:(Csm::CubismMatrix44*)m;
+- (void)SetViewMatrix:(Csm::CubismViewMatrix*)m;
 
 /**
  * @brief レンダリング先を切り替える

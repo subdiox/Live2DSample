@@ -18,8 +18,6 @@
 #import "stb_image.h"
 #pragma clang diagnostic pop
 #import "LAppPal.h"
-#import "AppDelegate.h"
-#import "ViewController.h"
 #import "MetalUIView.h"
 #import "Rendering/Metal/CubismRenderingInstanceSingleton_Metal.h"
 
@@ -30,6 +28,15 @@
 @end
 
 @implementation LAppTextureManager
+
+static LAppTextureManager* s_instance = nil;
+
++ (LAppTextureManager *)getInstance {
+    if (s_instance == nil) {
+        s_instance = [[LAppTextureManager alloc] init];
+    }
+    return s_instance;
+}
 
 - (id)init
 {
@@ -114,10 +121,8 @@
                   withBytes:png
                 bytesPerRow:bytesPerRow];
 
-    AppDelegate* delegate = (AppDelegate*) [[UIApplication sharedApplication] delegate];
-    ViewController* viewController = delegate.viewController;
-    id<CAMetalDrawable> drawable = [((MetalUIView*)viewController.view).metalLayer nextDrawable];
-    id<MTLCommandBuffer> commandBuffer = [viewController.commandQueue commandBuffer];
+    id<CAMetalDrawable> drawable = [_delegate.metalLayer nextDrawable];
+    id<MTLCommandBuffer> commandBuffer = [_delegate.commandQueue commandBuffer];
     id<MTLBlitCommandEncoder> blitCommandEncoder = [commandBuffer blitCommandEncoder];
     [blitCommandEncoder generateMipmapsForTexture:texture];
     [blitCommandEncoder endEncoding];

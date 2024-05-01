@@ -12,7 +12,6 @@
 #import "LAppDefine.h"
 #import "LAppPal.h"
 #import "LAppTextureManager.h"
-#import "AppDelegate.h"
 #import <CubismDefaultParameterId.hpp>
 #import <CubismModelSettingJson.hpp>
 #import <Id/CubismIdManager.hpp>
@@ -82,8 +81,7 @@ LAppModel::~LAppModel()
         ReleaseMotionGroup(group);
     }
 
-    AppDelegate *delegate = (AppDelegate *) [[UIApplication sharedApplication] delegate];
-    LAppTextureManager *textureManager = [delegate getTextureManager];
+    LAppTextureManager *textureManager = [LAppTextureManager getInstance];
 
     for (csmInt32 modelTextureNumber = 0; modelTextureNumber < _modelSetting->GetTextureCount(); modelTextureNumber++)
     {
@@ -632,6 +630,8 @@ void LAppModel::ReloadRenderer()
 
 void LAppModel::SetupTextures()
 {
+    LAppTextureManager *textureManager = [LAppTextureManager getInstance];
+
     for (csmInt32 modelTextureNumber = 0; modelTextureNumber < _modelSetting->GetTextureCount(); modelTextureNumber++)
     {
         // テクスチャ名が空文字だった場合はロード・バインド処理をスキップ
@@ -644,8 +644,7 @@ void LAppModel::SetupTextures()
         csmString texturePath = _modelSetting->GetTextureFileName(modelTextureNumber);
         texturePath = _modelHomeDir + texturePath;
 
-        AppDelegate *delegate = (AppDelegate *) [[UIApplication sharedApplication] delegate];
-        TextureInfo* texture = [[delegate getTextureManager] createTextureFromPngFile:texturePath.GetRawString()];
+        TextureInfo* texture = [textureManager createTextureFromPngFile:texturePath.GetRawString()];
         id <MTLTexture> mtlTextueNumber = texture->id;
 
         //Metal

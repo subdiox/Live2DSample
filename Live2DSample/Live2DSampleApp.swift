@@ -9,8 +9,14 @@ import SwiftUI
 import Live2DMetalObjC
 
 @main
-struct Live2DSampleApp: App {
-    @UIApplicationDelegateAdaptor (AppDelegate.self) var appDelegate
+final class Live2DSampleApp: App {
+    init() {
+        L2DCubism.initialize()
+    }
+
+    deinit {
+        L2DCubism.dispose()
+    }
 
     var body: some Scene {
         WindowGroup {

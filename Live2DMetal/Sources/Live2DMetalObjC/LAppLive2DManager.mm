@@ -9,8 +9,6 @@
 #import <string.h>
 #import <stdlib.h>
 #import <Foundation/Foundation.h>
-#import "AppDelegate.h"
-#import "ViewController.h"
 #import "LAppModel.h"
 #import "LAppDefine.h"
 #import "LAppPal.h"
@@ -166,12 +164,10 @@ Csm::csmString GetPath(CFURLRef url)
     }
 }
 
-- (void)onUpdate:(id <MTLCommandBuffer>)commandBuffer currentDrawable:(id<CAMetalDrawable>)drawable depthTexture:(id<MTLTexture>)depthTarget;
+- (void)onUpdate:(id <MTLCommandBuffer>)commandBuffer currentDrawable:(id<CAMetalDrawable>)drawable depthTexture:(id<MTLTexture>)depthTarget frame:(CGRect)frame;
 {
-    AppDelegate* delegate = (AppDelegate*) [[UIApplication sharedApplication] delegate];
-    ViewController* view = [delegate viewController];
-    float width = view.view.frame.size.width;
-    float height = view.view.frame.size.height;
+    float width = frame.size.width;
+    float height = frame.size.height;
 
     Csm::CubismMatrix44 projection;
     Csm::csmUint32 modelCount = _models.GetSize();
@@ -354,9 +350,6 @@ Csm::csmString GetPath(CFURLRef url)
         float clearColorG = 1.0f;
         float clearColorB = 1.0f;
 
-        AppDelegate* delegate = (AppDelegate*) [[UIApplication sharedApplication] delegate];
-        ViewController* view = [delegate viewController];
-
         [self SwitchRenderingTarget:useRenderTarget];
         [self SetRenderTargetClearColor:clearColorR g:clearColorG b:clearColorB];
     }
@@ -367,7 +360,7 @@ Csm::csmString GetPath(CFURLRef url)
     return _models.GetSize();
 }
 
-- (void)SetViewMatrix:(Csm::CubismMatrix44*)m;
+- (void)SetViewMatrix:(Csm::CubismViewMatrix*)m;
 {
     for (int i = 0; i < 16; i++) {
         _viewMatrix->GetArray()[i] = m->GetArray()[i];
