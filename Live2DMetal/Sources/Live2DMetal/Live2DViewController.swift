@@ -7,12 +7,13 @@ import CubismNativeFramework
 public final class Live2DViewController: UIViewController {
     public var commandQueue: MTLCommandQueue?
 
-    private let touchManager = TouchManager()
+    private lazy var live2DManager = LAppLive2DManager.getInstance()!
     private var depthTexture: MTLTexture?
     private var back: LAppSprite? // Sprite for Background image
     private var gear: LAppSprite? // Sprite for Setting icon
     private var deviceToScreen = Csm.CubismMatrix44() // A matrix from device to screen
     private var viewMatrix = Csm.CubismViewMatrix()
+    private var lastTouchPoint: CGPoint = .zero
 
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,39 +49,34 @@ public final class Live2DViewController: UIViewController {
 
     public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
-        let point = touch.location(in: view)
 
-        touchManager?.touchesBegan(Float(point.x), deciveY: Float(point.y))
+        lastTouchPoint = touch.location(in: view)
     }
 
     public override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
-        let point = touch.location(in: view)
 
-        let viewX = transformViewX(touchManager?.lastX ?? 0.0)
-        let viewY = transformViewY(touchManager?.lastY ?? 0.0)
+        let viewX = transformViewX(lastTouchPoint.x)
+        let viewY = transformViewY(lastTouchPoint.y)
 
-        touchManager?.touchesMoved(Float(point.x), deviceY: Float(point.y))
-        LAppLive2DManager.getInstance()?.onDrag(viewX, floatY: viewY)
+        lastTouchPoint = touch.location(in: view)
+        live2DManager.onDrag(x: Float(viewX), y: Float(viewY))
     }
 
     public override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
 
         let point = touch.location(in: view)
-        let pointY = transformTapY(Float(point.y))
+        let pointY = transformTapY(point.y)
 
         // Touch ended
-        let live2DManager = LAppLive2DManager.getInstance()
-        live2DManager?.onDrag(0.0, floatY: 0.0)
-        if let getX = touchManager?.lastX, let getY = touchManager?.lastY {
-            let x = deviceToScreen.TransformX(getX)
-            let y = deviceToScreen.TransformY(getY)
-            live2DManager?.onTap(x ?? 0.0, floatY: y ?? 0.0)
-            // Did tap on gear?
-            if gear?.isHit(Float(point.x), pointY: pointY) ?? false {
-                live2DManager?.nextScene()
-            }
+        live2DManager.onDrag(x: 0.0, y: 0.0)
+        let x = deviceToScreen.TransformX(Float(lastTouchPoint.x))
+        let y = deviceToScreen.TransformY(Float(lastTouchPoint.y))
+        live2DManager.onTap(x: x ?? 0.0, y: y ?? 0.0)
+        // Did tap on gear?
+        if gear?.isHit(Float(point.x), pointY: Float(pointY)) ?? false {
+            live2DManager.nextScene()
         }
     }
 }
@@ -229,17 +225,19 @@ extension Live2DViewController {
         }
     }
 
-    private func transformViewX(_ deviceX: Float) -> Float {
-        viewMatrix.InvertTransformX(deviceToScreen.TransformX(deviceX))
+    private func transformViewX(_ deviceX: CGFloat) -> CGFloat {
+        let screenX = deviceToScreen.TransformX(Float(deviceX))
+        return CGFloat(viewMatrix.InvertTransformX(screenX))
     }
 
-    private func transformViewY(_ deviceY: Float) -> Float {
-        viewMatrix.InvertTransformY(deviceToScreen.TransformY(deviceY))
+    private func transformViewY(_ deviceY: CGFloat) -> CGFloat {
+        let screenY = deviceToScreen.TransformY(Float(deviceY))
+        return CGFloat(viewMatrix.InvertTransformY(screenY))
     }
 
-    private func transformTapY(_ deviceY: Float) -> Float {
+    private func transformTapY(_ deviceY: CGFloat) -> CGFloat {
         guard let height = view?.frame.size.height else { return 0 }
-        return deviceY * -1 + Float(height)
+        return deviceY * -1 + height
     }
 
     private var cubismRenderingInstance: CubismRenderingInstanceSingleton_Metal? {
@@ -285,10 +283,9 @@ extension Live2DViewController: MetalViewDelegate {
 
         renderEncoder.endEncoding()
 
-        let live2DManager = LAppLive2DManager.getInstance()
-        live2DManager?.setViewMatrix(UnsafeMutablePointer(&viewMatrix))
-        live2DManager?.onUpdate(
-            commandBuffer,
+        live2DManager.setViewMatrix(&viewMatrix)
+        live2DManager.onUpdate(
+            commandBuffer: commandBuffer,
             currentDrawable: currentDrawable,
             depthTexture: depthTexture,
             frame: view?.frame ?? .zero
@@ -303,27 +300,4 @@ extension Live2DViewController: TextureManagerDelegate {
     public var metalLayer: CAMetalLayer? {
         (view as? MetalUIView)?.metalLayer
     }
-}
-
-private enum Constant {
-    static let viewScale: Csm.csmFloat32 = 1.0
-    static let viewMaxScale: Csm.csmFloat32 = 2.0
-    static let viewMinScale: Csm.csmFloat32 = 0.8
-
-    static let viewLogicalLeft: Csm.csmFloat32 = -1.0
-    static let viewLogicalRight: Csm.csmFloat32 = 1.0
-    static let viewLogicalBottom: Csm.csmFloat32 = -1.0
-    static let viewLogicalTop: Csm.csmFloat32 = 1.0
-
-    static let viewLogicalMaxLeft: Csm.csmFloat32 = -2.0
-    static let viewLogicalMaxRight: Csm.csmFloat32 = 2.0
-    static let viewLogicalMaxBottom: Csm.csmFloat32 = -2.0
-    static let viewLogicalMaxTop: Csm.csmFloat32 = 2.0
-
-    static let resourcesPath = "res/"
-
-    // Image file for the background behind the model
-    static let backImageName = "back_class_normal.png"
-    // Gear icon
-    static let gearImageName = "icon_gear.png"
 }

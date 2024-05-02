@@ -31,7 +31,7 @@ public:
      * @brief デストラクタ
      *
      */
-    virtual ~LAppModel();
+    void Destroy();
 
     /**
      * @brief model3.jsonが置かれたディレクトリとファイルパスからモデルを生成する
@@ -106,7 +106,7 @@ public:
      * @param[in]   x               判定を行うX座標
      * @param[in]   y               判定を行うY座標
      */
-    virtual Csm::csmBool HitTest(const Csm::csmChar* hitAreaName, Csm::csmFloat32 x, Csm::csmFloat32 y);
+    Csm::csmBool HitTest(const Csm::csmChar* hitAreaName, Csm::csmFloat32 x, Csm::csmFloat32 y);
 
     /**
      * @brief   別ターゲットに描画する際に使用するバッファの取得
@@ -121,6 +121,17 @@ public:
      */
     Csm::csmBool HasMocConsistencyFromFile(const Csm::csmChar* mocFileName);
 
+    /**
+     * @brief マウスドラッグ情報の設定
+     *
+     * マウスドラッグの情報を設定する。
+     *
+     * @param[in]   x   ドラッグしているカーソルのX位置
+     * @param[in]   y   ドラッグしているカーソルのY位置
+     */
+    void SetActualDragging(Csm::csmFloat32 x, Csm::csmFloat32 y);
+
+    void TryRandomMotion(const Csm::csmChar* group, Csm::csmInt32 priority, Csm::ACubismMotion::FinishedMotionCallback onFinishedMotionHandler);
 protected:
     /**
      * @brief  モデルを描画する処理。モデルを描画する空間のView-Projection行列を渡す。

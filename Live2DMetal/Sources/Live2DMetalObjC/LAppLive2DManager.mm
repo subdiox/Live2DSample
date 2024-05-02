@@ -127,7 +127,7 @@ Csm::csmString GetPath(CFURLRef url)
     return nil;
 }
 
-- (void)onDrag:(Csm::csmFloat32)x floatY:(Csm::csmFloat32)y
+- (void)onDragX:(Csm::csmFloat32)x y:(Csm::csmFloat32)y
 {
     for (Csm::csmUint32 i = 0; i < _models.GetSize(); i++)
     {
@@ -136,7 +136,7 @@ Csm::csmString GetPath(CFURLRef url)
     }
 }
 
-- (void)onTap:(Csm::csmFloat32)x floatY:(Csm::csmFloat32)y;
+- (void)onTapX:(Csm::csmFloat32)x y:(Csm::csmFloat32)y;
 {
     if (LAppDefine::DebugLogEnable)
     {

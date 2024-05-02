@@ -67,7 +67,7 @@ typedef NS_ENUM(NSUInteger, SelectTarget)
  * @param[in]   x   画面のX座標
  * @param[in]   y   画面のY座標
  */
-- (void)onDrag:(Csm::csmFloat32)x floatY:(Csm::csmFloat32)y;
+- (void)onDragX:(Csm::csmFloat32)x y:(Csm::csmFloat32)y NS_SWIFT_NAME(onDrag(x:y:));
 
 /**
  * @brief   画面をタップしたときの処理
@@ -75,13 +75,13 @@ typedef NS_ENUM(NSUInteger, SelectTarget)
  * @param[in]   x   画面のX座標
  * @param[in]   y   画面のY座標
  */
-- (void)onTap:(Csm::csmFloat32)x floatY:(Csm::csmFloat32)y;
+- (void)onTapX:(Csm::csmFloat32)x y:(Csm::csmFloat32)y NS_SWIFT_NAME(onTap(x:y:));
 
 /**
  * @brief   画面を更新するときの処理
  *          モデルの更新処理および描画処理を行う
  */
-- (void)onUpdate:(id <MTLCommandBuffer>)commandBuffer currentDrawable:(id<CAMetalDrawable>)drawable depthTexture:(id<MTLTexture>)depthTarget frame:(CGRect)frame;
+- (void)onUpdate:(id <MTLCommandBuffer>)commandBuffer currentDrawable:(id<CAMetalDrawable>)drawable depthTexture:(id<MTLTexture>)depthTarget frame:(CGRect)frame NS_SWIFT_NAME(onUpdate(commandBuffer:currentDrawable:depthTexture:frame:));
 
 /**
  * @brief   次のシーンに切り替える
