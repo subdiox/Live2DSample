@@ -120,18 +120,6 @@ public:
      * @return      MOC3に整合性があれば'true'、そうでなければ'false'。
      */
     Csm::csmBool HasMocConsistencyFromFile(const Csm::csmChar* mocFileName);
-
-    /**
-     * @brief マウスドラッグ情報の設定
-     *
-     * マウスドラッグの情報を設定する。
-     *
-     * @param[in]   x   ドラッグしているカーソルのX位置
-     * @param[in]   y   ドラッグしているカーソルのY位置
-     */
-    void SetActualDragging(Csm::csmFloat32 x, Csm::csmFloat32 y);
-
-    void TryRandomMotion(const Csm::csmChar* group, Csm::csmInt32 priority, Csm::ACubismMotion::FinishedMotionCallback onFinishedMotionHandler);
 protected:
     /**
      * @brief  モデルを描画する処理。モデルを描画する空間のView-Projection行列を渡す。

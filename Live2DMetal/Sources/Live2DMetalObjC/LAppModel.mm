@@ -70,36 +70,34 @@ LAppModel::LAppModel()
 
 void LAppModel::Destroy()
 {
-//    _renderBuffer.DestroyOffscreenSurface();
-
-    _motionManager->StopAllMotions();
+    _renderBuffer.DestroyOffscreenSurface();
 
     ReleaseMotions();
     ReleaseExpressions();
 
-//    for (csmInt32 i = 0; i < _modelSetting->GetMotionGroupCount(); i++)
-//    {
-//        const csmChar* group = _modelSetting->GetMotionGroupName(i);
-//        ReleaseMotionGroup(group);
-//    }
+    for (csmInt32 i = 0; i < _modelSetting->GetMotionGroupCount(); i++)
+    {
+        const csmChar* group = _modelSetting->GetMotionGroupName(i);
+        ReleaseMotionGroup(group);
+    }
 
-//    LAppTextureManager *textureManager = [LAppTextureManager getInstance];
-//
-//    for (csmInt32 modelTextureNumber = 0; modelTextureNumber < _modelSetting->GetTextureCount(); modelTextureNumber++)
-//    {
-//        // テクスチャ名が空文字だった場合は削除処理をスキップ
-//        if (!strcmp(_modelSetting->GetTextureFileName(modelTextureNumber), ""))
-//        {
-//            continue;
-//        }
-//
-//        //テクスチャ管理クラスからモデルテクスチャを削除する
-//        csmString texturePath = _modelSetting->GetTextureFileName(modelTextureNumber);
-//        texturePath = _modelHomeDir + texturePath;
-//        [textureManager releaseTextureByName:texturePath.GetRawString()];
-//    }
-//
-//    delete _modelSetting;
+    LAppTextureManager *textureManager = [LAppTextureManager getInstance];
+
+    for (csmInt32 modelTextureNumber = 0; modelTextureNumber < _modelSetting->GetTextureCount(); modelTextureNumber++)
+    {
+        // テクスチャ名が空文字だった場合は削除処理をスキップ
+        if (!strcmp(_modelSetting->GetTextureFileName(modelTextureNumber), ""))
+        {
+            continue;
+        }
+
+        //テクスチャ管理クラスからモデルテクスチャを削除する
+        csmString texturePath = _modelSetting->GetTextureFileName(modelTextureNumber);
+        texturePath = _modelHomeDir + texturePath;
+        [textureManager releaseTextureByName:texturePath.GetRawString()];
+    }
+
+    delete _modelSetting;
 }
 
 void LAppModel::LoadAssets(const csmChar* dir, const csmChar* fileName)
@@ -695,14 +693,4 @@ csmBool LAppModel::HasMocConsistencyFromFile(const csmChar* mocFileName)
     DeleteBuffer(buffer);
 
     return consistency;
-}
-
-void LAppModel::SetActualDragging(csmFloat32 x, csmFloat32 y)
-{
-    SetDragging(x, y);
-}
-
-void LAppModel::TryRandomMotion(const Csm::csmChar* group, Csm::csmInt32 priority, ACubismMotion::FinishedMotionCallback onFinishedMotionHandler)
-{
-    StartRandomMotion(group, priority, onFinishedMotionHandler);
 }

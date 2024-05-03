@@ -7,14 +7,27 @@ import CubismNativeFramework
 public final class Live2DViewController: UIViewController {
     public var commandQueue: MTLCommandQueue?
 
-    private lazy var live2DManager = LAppLive2DManager.getInstance()!
+    private lazy var live2DManager = LAppLive2DManager(resourcesPath: resourcesPath, modelName: modelName)!
     private var depthTexture: MTLTexture?
-    private var back: LAppSprite? // Sprite for Background image
-    private var gear: LAppSprite? // Sprite for Setting icon
     private var deviceToScreen = Csm.CubismMatrix44() // A matrix from device to screen
     private var viewMatrix = Csm.CubismViewMatrix()
     private var lastTouchPoint: CGPoint = .zero
+    private let resourcesPath: String
+    private let modelName: String
 
+    public init(
+        resourcesPath: String,
+        modelName: String
+    ) {
+        self.resourcesPath = resourcesPath
+        self.modelName = modelName
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     public override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -26,6 +39,7 @@ public final class Live2DViewController: UIViewController {
         cubismRenderingInstance?.setMTLDevice(device)
 
         let view = MetalUIView()
+        view.backgroundColor = .clear
         self.view = view
 
         // Set the device for the layer so the layer can create drawable textures that can be rendered to on this device.
@@ -40,11 +54,6 @@ public final class Live2DViewController: UIViewController {
         commandQueue = device?.makeCommandQueue()
 
         initializeScreen()
-    }
-
-    public override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        initializeSprite()
     }
 
     public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -74,10 +83,6 @@ public final class Live2DViewController: UIViewController {
         let x = deviceToScreen.TransformX(Float(lastTouchPoint.x))
         let y = deviceToScreen.TransformY(Float(lastTouchPoint.y))
         live2DManager.onTap(x: x ?? 0.0, y: y ?? 0.0)
-        // Did tap on gear?
-        if gear?.isHit(Float(point.x), pointY: Float(pointY)) ?? false {
-            live2DManager.nextScene()
-        }
     }
 }
 
@@ -156,75 +161,6 @@ extension Live2DViewController {
         viewMatrix.SetMaxScreenRect(Constant.viewLogicalMaxLeft, Constant.viewLogicalMaxRight, Constant.viewLogicalMaxBottom, Constant.viewLogicalMaxTop)
     }
 
-    private func initializeSprite() {
-        guard let view else { return }
-        let width = Float(view.frame.width)
-        let height = Float(view.frame.height)
-
-        let resourcesPath = Constant.resourcesPath
-        let textureManager = LAppTextureManager.getInstance()
-
-        // Background
-        if let backgroundTexture = textureManager?.createTexture(
-            fromPngFile: std.string(resourcesPath + Constant.backImageName)
-        ).pointee {
-            back = LAppSprite(
-                x: width * 0.5,
-                y: height * 0.5,
-                width: Float(backgroundTexture.width) * 2,
-                height: height * 0.95,
-                maxWidth: width,
-                maxHeight: height,
-                texture: backgroundTexture.id
-            )
-        }
-
-        // Model change button
-        if let gearTexture = textureManager?.createTexture(
-            fromPngFile: std.string(resourcesPath + Constant.gearImageName)
-        ).pointee {
-            gear = LAppSprite(
-                x: width - Float(gearTexture.width) * 0.5,
-                y: height - Float(gearTexture.height) * 0.5,
-                width: Float(gearTexture.width),
-                height: Float(gearTexture.height),
-                maxWidth: width,
-                maxHeight: height,
-                texture: gearTexture.id
-            )
-        }
-    }
-
-    private func resizeSprite(width: Float, height: Float) {
-        guard let view else { return }
-        let maxWidth = Float(view.frame.width)
-        let maxHeight = Float(view.frame.height)
-
-        // Background
-        if let back {
-            back.resizeImmidiate(
-                width * 0.5,
-                y: height * 0.5,
-                width: Float(back.texture.width) * 2.0,
-                height: height * 0.95,
-                maxWidth: maxWidth,
-                maxHeight: maxHeight
-            )
-        }
-
-        // Model change button
-        if let gear {
-            gear.resizeImmidiate(
-                width - Float(gear.texture.width) * 0.5,
-                y: height - Float(gear.texture.height) * 0.5,
-                width: Float(gear.texture.width),
-                height: Float(gear.texture.height),
-                maxWidth: maxWidth,
-                maxHeight: maxHeight
-            )
-        }
-    }
-
     private func transformViewX(_ deviceX: CGFloat) -> CGFloat {
         let screenX = deviceToScreen.TransformX(Float(deviceX))
         return CGFloat(viewMatrix.InvertTransformX(screenX))
@@ -246,9 +182,7 @@ extension Live2DViewController {
 }
 
 extension Live2DViewController: MetalViewDelegate {
-    public
-
- func drawableResize(_ size: CGSize) {
+    public func drawableResize(_ size: CGSize) {
         guard let device = cubismRenderingInstance?.getMTLDevice() else { return }
 
         let depthTextureDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .depth32Float, width: Int(size.width), height: Int(size.height), mipmapped: false)
@@ -276,10 +210,6 @@ extension Live2DViewController: MetalViewDelegate {
         guard let renderEncoder = commandBuffer.makeRenderCommandEncoder(
             descriptor: renderPassDescriptor
         ) else { return }
-
-        // Rendering other than the model
-        back?.renderImmidiate(renderEncoder)
-        gear?.renderImmidiate(renderEncoder)
 
         renderEncoder.endEncoding()
 

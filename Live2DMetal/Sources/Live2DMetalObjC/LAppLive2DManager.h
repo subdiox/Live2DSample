@@ -17,49 +17,13 @@
 
 @interface LAppLive2DManager : NSObject
 
-typedef NS_ENUM(NSUInteger, SelectTarget)
-{
-    SelectTarget_None,                ///< デフォルトのフレームバッファにレンダリング
-    SelectTarget_ModelFrameBuffer,    ///< LAppModelが各自持つフレームバッファにレンダリング
-    SelectTarget_ViewFrameBuffer,     ///< LAppViewの持つフレームバッファにレンダリング
-};
-
 @property (nonatomic) Csm::CubismMatrix44 *viewMatrix; //モデル描画に用いるView行列
-@property (nonatomic) Csm::csmVector<LAppModel*> models; //モデルインスタンスのコンテナ
-@property (nonatomic) Csm::csmInt32 sceneIndex; //表示するシーンのインデックス値
-@property (nonatomic) SelectTarget renderTarget;
-@property (nonatomic) Csm::Rendering::CubismOffscreenSurface_Metal* renderBuffer;
-@property (nonatomic) LAppSprite* sprite;
+@property (nonatomic) LAppModel* model; //モデルインスタンス
 @property (nonatomic) MTLRenderPassDescriptor* renderPassDescriptor;
-@property (nonatomic) float clearColorR;
-@property (nonatomic) float clearColorG;
-@property (nonatomic) float clearColorB;
+@property (nonatomic) NSString* resourcesPath;
+@property (nonatomic) NSString* modelName;
 
-@property (nonatomic) Csm::csmVector<Csm::csmString> modelDir; ///< モデルディレクトリ名のコンテナ
-
-/**
- * @brief クラスのインスタンスを返す。
- *        インスタンスが生成されていない場合は内部でインスタンスを生成する。
- */
-+ (LAppLive2DManager*)getInstance;
-
-/**
- * @brief 現在のシーンで保持しているモデルを返す。
- *
- * @param[in] no モデルリストのインデックス値
- * @return モデルのインスタンスを返す。インデックス値が範囲外の場合はNULLを返す。
- */
-- (LAppModel*)getModel:(Csm::csmUint32)no;
-
-/**
- * @brief 現在のシーンで保持している全てのモデルを解放する
- */
-- (void)releaseAllModel;
-
-/**
- * @brief Resources フォルダにあるモデルフォルダ名をセットする
- */
-- (void)setUpModel;
+- (id)initWithResourcesPath:(NSString*)resourcesPath modelName:(NSString*)modelName;
 
 /**
  * @brief   画面をドラッグしたときの処理
@@ -84,40 +48,15 @@ typedef NS_ENUM(NSUInteger, SelectTarget)
 - (void)onUpdate:(id <MTLCommandBuffer>)commandBuffer currentDrawable:(id<CAMetalDrawable>)drawable depthTexture:(id<MTLTexture>)depthTarget frame:(CGRect)frame NS_SWIFT_NAME(onUpdate(commandBuffer:currentDrawable:depthTexture:frame:));
 
 /**
- * @brief   次のシーンに切り替える
- *          サンプルアプリケーションではモデルセットの切り替えを行う。
- */
-- (void)nextScene;
-
-/**
  * @brief   シーンを切り替える
  *           サンプルアプリケーションではモデルセットの切り替えを行う。
  */
-- (void)changeScene:(Csm::csmInt32)index;
-
-/**
- * @brief   モデル個数を得る
- * @return  所持モデル個数
- */
-- (Csm::csmUint32)GetModelNum;
+- (void)LoadScene;
 
 /**
  * @brief   viewMatrixをセットする
  */
 - (void)SetViewMatrix:(Csm::CubismViewMatrix*)m;
-
-/**
- * @brief レンダリング先を切り替える
- */
-- (void)SwitchRenderingTarget:(SelectTarget) targetType;
-
-/**
- * @brief レンダリング先をデフォルト以外に切り替えた際の背景クリア色設定
- * @param[in]   r   赤(0.0~1.0)
- * @param[in]   g   緑(0.0~1.0)
- * @param[in]   b   青(0.0~1.0)
- */
-- (void)SetRenderTargetClearColor:(float)r g:(float)g b:(float)b;
 
 @end
 

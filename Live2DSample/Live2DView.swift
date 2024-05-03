@@ -6,7 +6,7 @@ struct Live2DView: UIViewControllerRepresentable {
     typealias UIViewControllerType = Live2DViewController
 
     func makeUIViewController(context: Context) -> Live2DViewController {
-        Live2DViewController()
+        Live2DViewController(resourcesPath: "res/", modelName: "Hiyori")
     }
 
     func updateUIViewController(
