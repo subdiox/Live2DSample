@@ -185,7 +185,12 @@ extension Live2DViewController: MetalViewDelegate {
     public func drawableResize(_ size: CGSize) {
         guard let device = cubismRenderingInstance?.getMTLDevice() else { return }
 
-        let depthTextureDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .depth32Float, width: Int(size.width), height: Int(size.height), mipmapped: false)
+        let depthTextureDescriptor = MTLTextureDescriptor.texture2DDescriptor(
+            pixelFormat: .depth32Float,
+            width: Int(size.width),
+            height: Int(size.height),
+            mipmapped: false
+        )
         depthTextureDescriptor.usage = [.renderTarget, .shaderRead]
         depthTextureDescriptor.storageMode = .private
 
@@ -205,7 +210,7 @@ extension Live2DViewController: MetalViewDelegate {
         renderPassDescriptor.colorAttachments[0].texture = currentDrawable.texture
         renderPassDescriptor.colorAttachments[0].loadAction = .clear
         renderPassDescriptor.colorAttachments[0].storeAction = .store
-        renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 1)
+        renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 0)
 
         guard let renderEncoder = commandBuffer.makeRenderCommandEncoder(
             descriptor: renderPassDescriptor
