@@ -12,21 +12,4 @@ enum Constant {
     static let viewLogicalMaxRight: Float = 2.0
     static let viewLogicalMaxBottom: Float = -2.0
     static let viewLogicalMaxTop: Float = 2.0
-
-    static let resourcesPath = "res/"
-
-    // Image file for the background behind the model
-    static let backImageName = "back_class_normal.png"
-    // Gear icon
-    static let gearImageName = "icon_gear.png"
-
-    // Match with the external definition file (json)
-    static let hitAreaNameHead = "Head"
-    static let hitAreaNameBody = "Body"
-    static let motionGroupIdle = "Idle" // Idle
-    static let motionGroupTapBody = "TapBody" // When tapping body
-
-    // Log display option for debugging
-    static let debugLogEnable = true
-    static let debugTouchLogEnable = false
 }

@@ -17,8 +17,6 @@
  */
 namespace LAppDefine {
     using namespace Csm;
-
-    extern const csmChar* ResourcesPath;            ///< 素材パス
     // モデル定義--------------------------------------------
     // 外部定義ファイル(json)と合わせる
     extern const csmChar* MotionGroupIdle;          ///< アイドリング時に再生するモーションのリスト

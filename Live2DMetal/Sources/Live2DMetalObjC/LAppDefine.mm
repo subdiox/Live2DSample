@@ -12,9 +12,6 @@ namespace LAppDefine {
 
     using namespace Csm;
 
-    // 相対パス
-    const csmChar* ResourcesPath = "res/";
-
     // モデル定義------------------------------------------
     // 外部定義ファイル(json)と合わせる
     const csmChar* MotionGroupIdle = "Idle"; // アイドリング
